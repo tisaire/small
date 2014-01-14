@@ -93,10 +93,16 @@ static ssize_t dev_write(struct file *filp,const char *buff,size_t len,loff_t *o
 
 static int dev_rls(struct inode *inod,struct file *fil)
 {
-	unregister_chrdev(MAJOR(dev),"small");
+	printk(KERN_ALERT"Device %d released\n",MAJOR(dev));
+	return 0;
+}
+static int dev_close(struct inode *inod,struct file *fil)
+{
+	cdev_del(&c_dev);
+	unregister_chrdev_region(dev,1);
 	printk(KERN_ALERT"Device %d closed\n",MAJOR(dev));
 	return 0;
 }
 
 module_init(small_init);
-module_exit(dev_rls);
+module_exit(dev_close);
