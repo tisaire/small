@@ -7,7 +7,7 @@
 #include <asm-generic/int-ll64.h>
 #include <mach/board-am335xevm.h>
 //test
-
+//test2
 #define GPMC_muxed_16bit 1
 #define GPMC_non_muxed_16bit 0
 
