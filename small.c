@@ -3,6 +3,7 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <asm/uaccess.h>
+#include <asm/types.h>
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Device Driver Demo");
@@ -20,6 +21,7 @@ static int dev_open(struct inode *inod,struct file *fil);
 static int dev_rls(struct inode *inod,struct file *fil);
 static ssize_t dev_read(struct file *filp,char *buff,size_t len,loff_t *off);
 static ssize_t dev_write(struct file *filp,const char *buff,size_t len,loff_t *off);
+static int gpmc_init(int mode);
 
 static struct file_operations fops =
 {
@@ -30,10 +32,18 @@ static struct file_operations fops =
 		.release = dev_rls,
 };
 
+static int gpmc_init(int mode)
+{
+
+}
+
+
 int small_init(void)
 {
 	int result,err;
 	struct small_dev* sm_dev = 0;
+
+
 
 	printk(KERN_ALERT "allocating chrdev...\n");
 	result = alloc_chrdev_region(&dev, small_minor, 1,"small");
