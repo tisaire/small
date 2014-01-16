@@ -3,7 +3,7 @@
 #include <mux.h>
 #include <plat/gpmc.h>
 #include <mux34xx.h>
-#include <asm/types.h>
+#include <asm-generic/types.h>
 #include <asm-generic/int-ll64.h>
 #include <mach/board-am335xevm.h>
 //#include <>
