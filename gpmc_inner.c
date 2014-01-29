@@ -10,7 +10,7 @@
 #define GPMC_muxed_16bit 1
 #define GPMC_non_muxed_16bit 0
 
-void PINMUX_Config(u8 mode)
+void PINMUX_Config(char mode)
 {
 	if(mode == GPMC_muxed_16bit)
 	{
