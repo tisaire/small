@@ -7,6 +7,7 @@
 #include <asm/types.h>
 #include <asm/io.h>
 #include <linux/ioport.h>
+#include <linux/init.h>
 
 #include "hw_cm_per.h"
 #include "hw_gpmc.h"
