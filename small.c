@@ -67,7 +67,7 @@ static int gpmc_init()
 {
 
 	unsigned int temp = 0;
-		unsigned short int csNum = 1 ;
+		unsigned short int csNum = 0 ;
 		volatile unsigned int * gpmc_reg_pointer ;
 
 		printk("Configuring GPMC for non muxed access \n");
@@ -100,13 +100,14 @@ static int gpmc_init()
 		iowrite32(0x00, gpmc_reg_pointer + GPMC_IRQENABLE/4) ;
 		iowrite32(0x00, gpmc_reg_pointer + GPMC_TIMEOUT_CONTROL/4);
 
+
 		iowrite32((0x0 |
 		(GPMC_CONFIG1_0_DEVICESIZE_SIXTEENBITS <<
 			GPMC_CONFIG1_0_DEVICESIZE_SHIFT ) |
 		(GPMC_CONFIG1_0_ATTACHEDDEVICEPAGELENGTH_FOUR <<
 			GPMC_CONFIG1_0_ATTACHEDDEVICEPAGELENGTH_SHIFT ) |
-		(GPMC_CONFIG1_0_MUXADDDATA_MUX << GPMC_CONFIG1_0_MUXADDDATA_SHIFT )),
-		gpmc_reg_pointer + GPMC_CONFIG1(csNum)/4) ;	//Address/Data multiplexed
+		(GPMC_CONFIG1_0_MUXADDDATA_NONMUX << GPMC_CONFIG1_0_MUXADDDATA_SHIFT )),
+		gpmc_reg_pointer + GPMC_CONFIG1(csNum)/4) ;	//Address/Data non-multiplexed
 
 
 		iowrite32((0x0 |
