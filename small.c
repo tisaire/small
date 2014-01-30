@@ -1,9 +1,12 @@
 #include <linux/module.h>
 #include <linux/string.h>
 #include <linux/fs.h>
+#include <linux/ioctl.h>
 #include <linux/cdev.h>
 #include <asm/uaccess.h>
 #include <asm/types.h>
+#include <asm/io.h>
+#include <linux/ioport.h>
 
 #include "hw_cm_per.h"
 #include "hw_gpmc.h"
@@ -12,6 +15,8 @@
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Device Driver Demo");
 MODULE_AUTHOR("Xavier Tisaire");
+
+char * gDrvrName = "small";
 
 dev_t dev = 0;
 struct cdev c_dev;
