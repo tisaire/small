@@ -241,6 +241,7 @@ static ssize_t dev_write(struct file *filp,const char *buff,size_t len,loff_t *o
 
 	iounmap(gpmc_reg_pointer);
 	release_mem_region(0x09000000, 720);
+	 printk("Memory released\n");
 
 
 
