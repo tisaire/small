@@ -191,31 +191,67 @@ static ssize_t dev_open(struct inode *inod,struct file *fil)
 
 static ssize_t dev_read(struct file *filp,char *buff,size_t len,loff_t *off)
 {
-	short count = 0;
-	printk(KERN_ALERT "reading...\n");
-	while (len && (msg[readPos]!= 0))
-	{
-		put_user(msg[readPos],buff++);
-		count++;
-		len--;
-		readPos++;
+
+	unsigned int i;
+	volatile unsigned int * gpmc_reg_pointer ;
+
+	if (check_mem_region(0x09000000, 720)) {
+	    printk("%s: memory already in use\n", gDrvrName);
+	    return -EBUSY;
 	}
-	return count;
+	request_mem_region(0x09000000, 720, gDrvrName);
+	gpmc_reg_pointer = ioremap_nocache(0x09000000,  720);
+
+	printk("ADDR_READ value :%x \n",ioread16(gpmc_reg_pointer));
+
+	iounmap(gpmc_reg_pointer);
+	release_mem_region(0x09000000, 720);
+
+//	short count = 0;
+//	printk(KERN_ALERT "reading...\n");
+//	while (len && (msg[readPos]!= 0))
+//	{
+//		put_user(msg[readPos],buff++);
+//		count++;
+//		len--;
+//		readPos++;
+//	}
+//	return count;
+	return 0;
+
 }
 
 static ssize_t dev_write(struct file *filp,const char *buff,size_t len,loff_t *off)
 {
-	short ind = len-1;
-	short count = 0;
-	memset(msg,0,100);
-	readPos=0;
-	printk(KERN_ALERT "writting...\n");
-	while(len>0)
-	{
-		msg[count++] = buff[ind--];
-		len--;
+	unsigned int i;
+	volatile unsigned int * gpmc_reg_pointer ;
+
+	if (check_mem_region(0x09000000, 720)) {
+	    printk("%s: memory already in use\n", gDrvrName);
+	    return -EBUSY;
 	}
-	return count;
+	request_mem_region(0x09000000, 720, gDrvrName);
+	gpmc_reg_pointer = ioremap_nocache(0x09000000,  720);
+
+	iowrite16(0xAAAA,gpmc_reg_pointer);
+
+	iounmap(gpmc_reg_pointer);
+	release_mem_region(0x09000000, 720);
+
+
+
+//	short ind = len-1;
+//	short count = 0;
+//	memset(msg,0,100);
+//	readPos=0;
+//	printk(KERN_ALERT "writting...\n");
+//	while(len>0)
+//	{
+//		msg[count++] = buff[ind--];
+//		len--;
+//	}
+//	return count;
+	return 0;
 }
 
 static int dev_rls(struct inode *inod,struct file *fil)
