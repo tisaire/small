@@ -45,7 +45,7 @@ static int dev_open(struct inode *inod,struct file *fil);
 static int dev_rls(struct inode *inod,struct file *fil);
 static ssize_t dev_read(struct file *filp,char *buff,size_t len,loff_t *off);
 static ssize_t dev_write(struct file *filp,const char *buff,size_t len,loff_t *off);
-static int gpmc_init(int mode);
+static int gpmc_init();
 void orShortRegister(unsigned short int value, volatile unsigned int * port);
 
 static struct file_operations fops =
@@ -63,7 +63,7 @@ void orShortRegister(unsigned short int value, volatile unsigned int * port){
 	iowrite32(oldVal | value, port);
 }
 
-static int gpmc_init(int mode)
+static int gpmc_init()
 {
 
 	unsigned int temp = 0;
@@ -174,6 +174,9 @@ int small_init(void)
 	/* Fail gracefully if need be */
 	if (err)
 		printk(KERN_NOTICE "Error %d adding small", err);
+
+	gpmc_init();
+
 	return err;
 }
 
