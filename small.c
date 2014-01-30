@@ -7,7 +7,6 @@
 #include <asm/types.h>
 #include <asm/io.h>
 #include <linux/ioport.h>
-#include <linux/init.h>
 
 #include "hw_cm_per.h"
 #include "hw_gpmc.h"
@@ -47,6 +46,7 @@ static int dev_rls(struct inode *inod,struct file *fil);
 static ssize_t dev_read(struct file *filp,char *buff,size_t len,loff_t *off);
 static ssize_t dev_write(struct file *filp,const char *buff,size_t len,loff_t *off);
 static int gpmc_init(int mode);
+void orShortRegister(unsigned short int value, volatile unsigned int * port);
 
 static struct file_operations fops =
 {
@@ -56,6 +56,12 @@ static struct file_operations fops =
 		.write = dev_write,
 		.release = dev_rls,
 };
+
+void orShortRegister(unsigned short int value, volatile unsigned int * port){
+	unsigned short oldVal ;
+	oldVal = ioread32(port);
+	iowrite32(oldVal | value, port);
+}
 
 static int gpmc_init(int mode)
 {
