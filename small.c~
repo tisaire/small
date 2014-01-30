@@ -5,8 +5,6 @@
 #include <linux/cdev.h>
 #include <asm/uaccess.h>
 #include <asm/types.h>
-#include <asm/io.h>
-#include <linux/ioport.h>
 
 #include "hw_cm_per.h"
 #include "hw_gpmc.h"
