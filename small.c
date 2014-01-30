@@ -47,6 +47,7 @@ static ssize_t dev_read(struct file *filp,char *buff,size_t len,loff_t *off);
 static ssize_t dev_write(struct file *filp,const char *buff,size_t len,loff_t *off);
 static int gpmc_init();
 void orShortRegister(unsigned short int value, volatile unsigned int * port);
+int setupGPMCClock(void);
 
 static struct file_operations fops =
 {
@@ -56,6 +57,31 @@ static struct file_operations fops =
 		.write = dev_write,
 		.release = dev_rls,
 };
+
+int setupGPMCClock(void){
+	volatile unsigned int * prcm_reg_pointer ;
+	printk("Configuring Clock for GPMC \n");
+	if (check_mem_region(SOC_PRCM_REGS + CM_PER_GPMC_CLKCTRL/4, 4)) {
+	    printk("%s: memory already in use\n", gDrvrName);
+	    return -EBUSY;
+	}
+	request_mem_region(SOC_PRCM_REGS + CM_PER_GPMC_CLKCTRL, 4, gDrvrName);
+
+
+	prcm_reg_pointer = ioremap_nocache(SOC_PRCM_REGS + CM_PER_GPMC_CLKCTRL, sizeof(int));
+	//enable clock to GPMC module
+
+	orShortRegister(CM_PER_GPMC_CLKCTRL_MODULEMODE_ENABLE, prcm_reg_pointer);
+	//check to see if enabled
+	printk("CM_PER_GPMC_CLKCTRL value :%x \n",ioread32(prcm_reg_pointer));
+	while((ioread32(prcm_reg_pointer) &
+	CM_PER_GPMC_CLKCTRL_IDLEST) != (CM_PER_GPMC_CLKCTRL_IDLEST_FUNC << CM_PER_GPMC_CLKCTRL_IDLEST_SHIFT));
+	printk("GPMC clock is running \n");
+	iounmap(prcm_reg_pointer);
+	release_mem_region(SOC_PRCM_REGS + CM_PER_GPMC_CLKCTRL/4, 4);
+
+	return 1;
+}
 
 void orShortRegister(unsigned short int value, volatile unsigned int * port){
 	unsigned short oldVal ;
@@ -175,6 +201,7 @@ int small_init(void)
 	if (err)
 		printk(KERN_NOTICE "Error %d adding small", err);
 
+	setupGPMCClock();
 	gpmc_init();
 
 	return err;
