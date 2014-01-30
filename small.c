@@ -202,7 +202,10 @@ static ssize_t dev_read(struct file *filp,char *buff,size_t len,loff_t *off)
 	request_mem_region(0x09000000, 720, gDrvrName);
 	gpmc_reg_pointer = ioremap_nocache(0x09000000,  720);
 
-	printk("ADDR_READ value :%x \n",ioread16(gpmc_reg_pointer));
+
+	for (i=0;i<4;i++){
+		printk("ADDR_READ value :%x \n",ioread16(gpmc_reg_pointer+i));;
+	}
 
 	iounmap(gpmc_reg_pointer);
 	release_mem_region(0x09000000, 720);
@@ -232,8 +235,9 @@ static ssize_t dev_write(struct file *filp,const char *buff,size_t len,loff_t *o
 	}
 	request_mem_region(0x09000000, 720, gDrvrName);
 	gpmc_reg_pointer = ioremap_nocache(0x09000000,  720);
-
-	iowrite16(0xAAAA,gpmc_reg_pointer);
+	for (i=0;i<4;i++){
+		iowrite16(i,gpmc_reg_pointer+i);
+	}
 
 	iounmap(gpmc_reg_pointer);
 	release_mem_region(0x09000000, 720);
