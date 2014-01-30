@@ -3,3 +3,7 @@
 /github_pub
 /github_pub.pub
 /small
+*.ko
+*.o
+*.symvers
+*.*~
