@@ -5,6 +5,10 @@
 #include <asm/uaccess.h>
 #include <asm/types.h>
 
+#include "hw_cm_per.h"
+#include "hw_gpmc.h"
+#include "soc_AM335x.h"
+
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Device Driver Demo");
 MODULE_AUTHOR("Xavier Tisaire");
