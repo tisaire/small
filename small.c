@@ -33,6 +33,7 @@ MODULE_AUTHOR("Xavier Tisaire");
 
 
 char * gDrvrName = "small";
+volatile unsigned int * gpmc_mem_pointer ;
 
 dev_t dev = 0;
 struct cdev c_dev;
@@ -184,7 +185,6 @@ int small_init(void)
 	struct small_dev* sm_dev = 0;
 
 
-
 	printk(KERN_ALERT "allocating chrdev...\n");
 	result = alloc_chrdev_region(&dev, small_minor, 1,"small");
 	small_major = MAJOR(dev);
@@ -192,6 +192,7 @@ int small_init(void)
 		printk(KERN_WARNING "small: can't get major %d\n", small_major);
 		return result;
 	}
+
 
 	printk(KERN_ALERT "setting up chrdev with MAJOR %d MINOR %d...\n",small_major,small_minor);
 	cdev_init(&c_dev, &fops);
@@ -201,6 +202,13 @@ int small_init(void)
 	/* Fail gracefully if need be */
 	if (err)
 		printk(KERN_NOTICE "Error %d adding small", err);
+
+	if (check_mem_region(0x09000000, 720)) {
+	    printk("%s: memory already in use\n", gDrvrName);
+	    return -EBUSY;
+	}
+	request_mem_region(0x09000000, 720, gDrvrName);
+	gpmc_mem_pointer = ioremap_nocache(0x09000000,  720);
 
 	setupGPMCClock();
 	gpmc_init();
@@ -220,22 +228,11 @@ static ssize_t dev_read(struct file *filp,char *buff,size_t len,loff_t *off)
 {
 
 	unsigned int i;
-	volatile unsigned int * gpmc_reg_pointer ;
-
-	if (check_mem_region(0x09000000, 720)) {
-	    printk("%s: memory already in use\n", gDrvrName);
-	    return -EBUSY;
-	}
-	request_mem_region(0x09000000, 720, gDrvrName);
-	gpmc_reg_pointer = ioremap_nocache(0x09000000,  720);
 
 
 	for (i=0;i<4;i++){
-		printk("ADDR_READ value :%x \n",ioread16(gpmc_reg_pointer+i));;
+		printk("ADDR_READ value :%x \n",ioread16(gpmc_mem_pointer+i));;
 	}
-
-	iounmap(gpmc_reg_pointer);
-	release_mem_region(0x09000000, 720);
 
 //	short count = 0;
 //	printk(KERN_ALERT "reading...\n");
@@ -247,31 +244,18 @@ static ssize_t dev_read(struct file *filp,char *buff,size_t len,loff_t *off)
 //		readPos++;
 //	}
 //	return count;
-	return 0;
+	return 1;
 
 }
 
 static ssize_t dev_write(struct file *filp,const char *buff,size_t len,loff_t *off)
 {
 	unsigned int i;
-	volatile unsigned int * gpmc_reg_pointer ;
 
-	if (check_mem_region(0x09000000, 720)) {
-	    printk("%s: memory already in use\n", gDrvrName);
-	    return -EBUSY;
-	}
-	request_mem_region(0x09000000, 720, gDrvrName);
-	gpmc_reg_pointer = ioremap_nocache(0x09000000,  720);
 	for (i=0;i<4;i++){
-		iowrite16(i,gpmc_reg_pointer+i);
+		iowrite16(i,gpmc_mem_pointer+i);
 		wmb();
 	}
-
-	iounmap(gpmc_reg_pointer);
-	release_mem_region(0x09000000, 720);
-	 printk("Memory released\n");
-
-
 
 //	short ind = len-1;
 //	short count = 0;
@@ -294,6 +278,10 @@ static int dev_rls(struct inode *inod,struct file *fil)
 }
 static int dev_close(struct inode *inod,struct file *fil)
 {
+	iounmap(gpmc_mem_pointer);
+	release_mem_region(0x09000000, 720);
+	 printk("Memory released\n");
+
 	cdev_del(&c_dev);
 	unregister_chrdev_region(dev,1);
 	printk(KERN_ALERT"Device %d closed\n",MAJOR(dev));
