@@ -7,6 +7,7 @@
 #include <asm/types.h>
 #include <asm/io.h>
 #include <linux/ioport.h>
+#include <asm/system.h>
 
 #include "hw_cm_per.h"
 #include "hw_gpmc.h"
@@ -263,6 +264,7 @@ static ssize_t dev_write(struct file *filp,const char *buff,size_t len,loff_t *o
 	gpmc_reg_pointer = ioremap_nocache(0x09000000,  720);
 	for (i=0;i<4;i++){
 		iowrite16(i,gpmc_reg_pointer+i);
+		wmb();
 	}
 
 	iounmap(gpmc_reg_pointer);
